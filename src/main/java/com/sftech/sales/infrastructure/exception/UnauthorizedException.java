@@ -1,4 +1,4 @@
-package com.sftech.sales.presentation.exception;
+package com.sftech.sales.infrastructure.exception;
 
 import org.springframework.http.HttpStatus;
 

@@ -1,0 +1,34 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Debug Spring Boot",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.sftech.sales.SalesApplication",
+      "projectName": "sales",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env",
+      "preLaunchTask": "build",
+      "console": "internalConsole"
+    },
+    {
+      "type": "java",
+      "name": "Debug Current File",
+      "request": "launch",
+      "mainClass": "${file}"
+    },
+    {
+      "type": "java",
+      "name": "Debug Tests",
+      "request": "launch",
+      "mainClass": "org.junit.platform.console.ConsoleLauncher",
+      "args": [
+        "--classpath",
+        "${workspaceFolder}/target/classes:${workspaceFolder}/target/test-classes",
+        "--scan-classpath"
+      ]
+    }
+  ]
+}

@@ -26,7 +26,6 @@ public class SalesApplication {
 		logger.info("\n----------------------------------------------------------\n\t" +
 				"Application '{}' is running! Access URLs:\n\t" +
 				"Local: \t\t{}://localhost:{}{}\n\t" +
-				// "External: \t{}://{}:{}{}\n\t" +
 				"Swagger UI: \t{}://localhost:{}{}/swagger-ui.html\n\t" +
 				"Profile(s): \t{}\n----------------------------------------------------------",
 				env.getProperty("spring.application.name"),

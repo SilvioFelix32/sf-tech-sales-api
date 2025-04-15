@@ -1,8 +1,9 @@
 package com.sftech.sales.infrastructure.persistence.repository;
 
+import com.sftech.sales.domain.entity.Sale;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import com.sftech.sales.domain.Sale;
-
-public interface SaleJpaRepository extends JpaRepository<Sale, Long> {
+@Repository
+public interface SaleJpaRepository extends JpaRepository<Sale, String> {
 }

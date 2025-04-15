@@ -33,6 +33,7 @@ Outras bibliotecas importantes incluem:
 - Java 21
 - Maven
 - PostgreSQL
+- VS Code (para debug)
 
 ### 🔥 Configuração do Banco de Dados
 
@@ -55,6 +56,24 @@ mvn clean install
 ```bash
 mvn spring-boot:run
 ```
+
+### 🔍 Modo Debugger
+
+1. Abra o projeto no VS Code
+2. Instale as extensões necessárias:
+   - Java Extension Pack
+   - Spring Boot Extension Pack
+3. Vá para a aba "Run and Debug" (Ctrl+Shift+D)
+4. Selecione "Debug Spring Boot"
+5. Clique no botão de play verde ou pressione F5
+
+O debugger permitirá:
+
+- Definir breakpoints (clique na margem esquerda do código)
+- Inspecionar variáveis (painel VARIABLES)
+- Ver a pilha de chamadas (painel CALL STACK)
+- Executar código passo a passo (F10 para step over, F11 para step into)
+- Avaliar expressões (painel WATCH)
 
 ### 📚 Documentação da API
 

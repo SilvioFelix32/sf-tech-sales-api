@@ -10,54 +10,98 @@ Este backend faz parte do projeto portfólio Sf-tech, veja mais em https://sf-te
 
 O backend foi desenvolvido com as seguintes tecnologias principais:
 
-- **Spring Boot** – Framework para aplicações Java escaláveis e modulares
+- **Spring Boot 3.2.3** – Framework para aplicações Java escaláveis e modulares
+- **Java 21** – Linguagem de programação
 - **JPA/Hibernate** – ORM para manipulação eficiente do banco de dados
-- **JUnit** – Framework de testes para garantir alta cobertura de código
 - **PostgreSQL** – Banco de dados relacional robusto e confiável
-- **Swagger/OpenAPI** – Documentação interativa da API
+- **MapStruct** – Mapeamento entre entidades e DTOs
 - **Lombok** – Redução de boilerplate code
-- **Maven** – Gerenciamento de dependências e build
+- **Maven 3.9.9** – Gerenciamento de dependências e build
+- **Swagger/OpenAPI** – Documentação interativa da API
+- **Spring Security** – Autenticação e autorização
+- **Flyway** – Migrações de banco de dados
 
-Outras bibliotecas importantes incluem:
-
-- Spring Data JPA (persistência)
-- Spring Web (API REST)
-- Spring Security (autenticação e autorização)
-- Spring Validation (validações)
-- SLF4J (logging)
-
-## ▶️ Rodando o projeto localmente
+## ▶️ Rodando o projeto
 
 ### 📌 Pré-requisitos
 
-- Java 21
-- Maven
-- PostgreSQL
-- VS Code (para debug)
+- Docker e Docker Compose (opção 1)
+- OU Java 21 e Maven (opção 2)
+- PostgreSQL (banco de dados)
 
-### 🔥 Configuração do Banco de Dados
+### 🐳 Opção 1: Usando Docker (Recomendado)
+
+#### Build e execução com Docker Compose:
 
 ```bash
-# Criar o banco de dados
-sudo -u postgres psql -c "CREATE DATABASE sf_tech_sales;"
+# Build e iniciar o container
+docker compose up -d
 
-# Configurar usuário
-sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
+# Ver logs em tempo real
+docker compose logs -f
+
+# Parar o container
+docker compose down
 ```
 
-### 📦 Instalação das dependências
+#### Build e execução manual:
 
+```bash
+# Build da imagem
+docker build -t sf-tech-sales-api:latest .
+
+# Executar o container
+docker run -d \
+  --name sf-tech-sales-api \
+  -p 8080:8080 \
+  -e DATABASE_URL="jdbc:postgresql://seu-host:5432/seu-db" \
+  -e DATABASE_USERNAME="seu-usuario" \
+  -e DATABASE_PASSWORD="sua-senha" \
+  sf-tech-sales-api:latest
+
+# Ver logs
+docker logs -f sf-tech-sales-api
+
+# Parar o container
+docker stop sf-tech-sales-api
+docker rm sf-tech-sales-api
+```
+
+**Variáveis de ambiente necessárias:**
+- `DATABASE_URL`: URL completa do banco PostgreSQL
+- `DATABASE_USERNAME`: Usuário do banco
+- `DATABASE_PASSWORD`: Senha do banco
+- `SPRING_PROFILES_ACTIVE`: Perfil Spring (opcional, padrão: `prod`)
+
+### ☕ Opção 2: Usando Maven
+
+#### Pré-requisitos adicionais:
+- Java 21 instalado
+- Maven 3.9+ instalado
+- PostgreSQL rodando localmente (ou configurar variáveis de ambiente)
+
+#### Configuração:
+
+1. Configure as variáveis de ambiente ou edite o arquivo `env_file`:
+```bash
+export DATABASE_URL="jdbc:postgresql://seu-host:5432/seu-db"
+export DATABASE_USERNAME="seu-usuario"
+export DATABASE_PASSWORD="sua-senha"
+```
+
+2. Instale as dependências:
 ```bash
 mvn clean install
 ```
 
-### 🏃 Iniciando o servidor
-
+3. Execute a aplicação:
 ```bash
 mvn spring-boot:run
 ```
 
-### 🔍 Modo Debugger
+A aplicação estará disponível em `http://localhost:8080`
+
+### 🔍 Modo Debugger (VS Code)
 
 1. Abra o projeto no VS Code
 2. Instale as extensões necessárias:
@@ -68,20 +112,104 @@ mvn spring-boot:run
 5. Clique no botão de play verde ou pressione F5
 
 O debugger permitirá:
-
 - Definir breakpoints (clique na margem esquerda do código)
 - Inspecionar variáveis (painel VARIABLES)
 - Ver a pilha de chamadas (painel CALL STACK)
 - Executar código passo a passo (F10 para step over, F11 para step into)
 - Avaliar expressões (painel WATCH)
 
-### 📚 Documentação da API
+## 📡 Endpoints da API
+
+Base URL: `http://localhost:8080/api/sales`
+
+### Criar Venda
+```http
+POST /api/sales
+Headers:
+  company_id: string (obrigatório)
+  user_id: string (obrigatório)
+Body: {
+  "total": number,
+  "items": [
+    {
+      "category_id": string,
+      "product_id": string,
+      "sku": string,
+      "title": string,
+      "subtitle": string,
+      "description": string,
+      "url_banner": string,
+      "quantity": number,
+      "total_value": number
+    }
+  ]
+}
+```
+
+### Listar Vendas
+```http
+GET /api/sales
+Headers:
+  company_id: string (obrigatório)
+  user_id: string (opcional - se fornecido, retorna vendas do usuário)
+```
+
+### Buscar Venda por ID
+```http
+GET /api/sales/{saleId}
+Headers:
+  company_id: string (obrigatório)
+```
+
+### Deletar Venda
+```http
+DELETE /api/sales/{saleId}
+Headers:
+  company_id: string (obrigatório)
+```
+
+## 📚 Documentação da API
 
 Após iniciar o servidor, acesse a documentação Swagger em:
 
 ```
 http://localhost:8080/swagger-ui.html
 ```
+
+Documentação OpenAPI JSON:
+```
+http://localhost:8080/api-docs
+```
+
+## 🏗️ Estrutura do Projeto
+
+```
+src/main/java/com/sftech/sales/
+├── application/          # Camada de Aplicação
+│   └── dto/             # Data Transfer Objects
+├── domain/              # Camada de Domínio
+│   ├── entity/          # Entidades de Negócio
+│   └── service/         # Serviços de Domínio
+└── infrastructure/      # Camada de Infraestrutura
+    ├── config/          # Configurações
+    ├── exception/       # Tratamento de Exceções
+    ├── http/            # Controllers REST
+    └── persistence/     # Repositórios e Mappers
+```
+
+## 🚀 Deploy
+
+### Render.com
+
+1. Conecte seu repositório GitHub ao Render
+2. Configure as variáveis de ambiente:
+   - `DATABASE_URL`
+   - `DATABASE_USERNAME`
+   - `DATABASE_PASSWORD`
+   - `SPRING_PROFILES_ACTIVE=prod`
+3. Render detectará automaticamente o Dockerfile
+4. Porta: 8080
+5. Health Check: `/actuator/health`
 
 ## 📜 Licença
 

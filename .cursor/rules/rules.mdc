@@ -1,0 +1,136 @@
+---
+alwaysApply: true
+---
+
+# Data Access Layer (DAL) and Services:
+
+Avoid mixing data fetching logic directly in components.
+Always create a directory for services.
+
+# Directory Structure for DAL:
+
+Use a consistent folder structure for data access and actions within each page module, for example:
+
+- src/
+  - service/
+    - /data-access # Data Access Layer (DAL)
+    - /actions # Server actions 
+
+# Component Placement Guidelines
+
+## 1. Page-Level
+
+- **Always check** When creating a new project structure or folder, file, service, DTO, ect... always follow the following Example:
+    ```
+src/
+│
+├── 📁 main/
+│   │
+│   ├── 📁 java/
+│   │   └── com/sftech/sales/
+│   │       │
+│   │       ├── 📄 SalesApplication.java          # Classe principal do Spring Boot
+│   │       │
+│   │       ├── 📁 application/                    # Camada de Aplicação
+│   │       │   └── 📁 dto/                        # Data Transfer Objects
+│   │       │       ├── SampleDTO.java
+│   │       │
+│   │       ├── 📁 domain/                         # Camada de Domínio (Core)
+│   │       │   ├── 📁 entity/                     # Entidades de Negócio
+│   │       │   │   ├── Sample.java
+│   │       │   └── 📁 service/                    # Serviços de Domínio
+│   │       │       └── SampleService.java
+│   │       │
+│   │       └── 📁 infrastructure/                 # Camada de Infraestrutura
+│   │           ├── 📁 config/                      # Configurações
+│   │           │   ├── OpenApiConfig.java         # Config do Swagger/OpenAPI
+│   │           │   └── SecurityConfig.java       # Config de Segurança
+│   │           │
+│   │           ├── 📁 exception/                   # Tratamento de Exceções
+│   │           │   ├── SampleException.java
+│   │           │
+│   │           ├── 📁 http/                        # Camada HTTP/REST
+│   │           │   └── 📁 controller/
+│   │           │       └── SaleController.java
+│   │           │
+│   │           └── 📁 persistence/                 # Camada de Persistência
+│   │               ├── 📁 mapper/                  # MapStruct Mappers
+│   │               │   ├── Sample.java
+│   │               └── 📁 repository/               # Repositórios JPA
+│   │                   └── Sample.java
+│   │
+│   └── 📁 resources/
+│       ├── 📄 application.properties              # Configurações da aplicação
+│       │
+│       ├── 📁 db/
+│       │   └── 📁 migration/                       # Migrações Flyway
+│       │       └── V1__create_sales_table.sql
+│       │
+│       ├── 📁 static/                              # Arquivos estáticos (vazio)
+│       └── 📁 templates/                           # Templates (vazio)
+│
+└── 📁 test/                                        # Testes
+    └── 📁 java/
+        └── com/sftech/sales/
+            └── SampleApiApplicationTests.java      
+    ```
+
+# Reusable and Functions:
+
+Keep components small and focused on a single responsibility.
+
+# Separation of Concerns:
+
+Avoid placing API calls or business logic inside components.
+Use hooks for state management and side effects (e.g., useSWR, React Query, custom hooks).
+
+# Clean Code Principles:
+
+Follow SOLID principles where applicable.
+Use meaningful variable names and avoid magic numbers.
+
+# Avoid Anti-Patterns:
+
+No large, monolithic functions.
+Performance Optimization
+
+# Testing Strategy:
+
+Use JUnit and Mockito Testing Library for unit and integration tests.
+Aim for high test coverage on critical components and services.
+
+# Documentation:
+
+Keep README files updated for each module or library used.
+Security and Best Practices
+
+# Environment Variables:
+
+Use .env files for secrets and configuration.
+Never expose sensitive keys in the frontend.
+
+# Input Validation and Sanitization:
+
+Use schema validation to prevent bad data.
+Sanitize all inputs to prevent XSS and SQL injection.
+
+# Logging and Error Handling:
+
+Use tools like Sentry for error tracking and performance monitoring.
+Implement graceful error handling with fallback components.
+
+# Scaling Strategies:
+
+Plan for horizontal scaling with serverless or containerized deployments.
+Optimize database queries with Prisma or Drizzle for efficient data access.
+Continuous Improvement
+
+# Code Reviews and PR Guidelines:
+
+Set clear code review guidelines to catch issues early.
+Use pull request templates to ensure consistency.
+
+# Performance Audits:
+
+Regularly run Lighthouse and Web Vitals checks.
+Use performance monitoring tools to track improvements.

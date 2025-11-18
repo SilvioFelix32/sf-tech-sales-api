@@ -27,88 +27,68 @@ public class SaleService {
 
     @Transactional
     public SaleDTO createSale(String companyId, String userId, SaleDTO saleDTO) {
-        try {
-            validateRequiredFields(companyId, userId);
-            validateCreateSaleDTO(saleDTO);
+        validateRequiredFields(companyId, userId);
+        validateCreateSaleDTO(saleDTO);
 
-            Sale sale = new Sale();
-            sale.setSaleId(UUID.randomUUID().toString());
-            sale.setCompanyId(companyId);
-            sale.setUserId(userId);
-            sale.setTotal(saleDTO.getTotal());
-            sale.setCreatedAt(java.time.LocalDateTime.now());
-            sale.setUpdatedAt(java.time.LocalDateTime.now());
+        Sale sale = new Sale();
+        sale.setSaleId(UUID.randomUUID().toString());
+        sale.setCompanyId(companyId);
+        sale.setUserId(userId);
+        sale.setTotal(saleDTO.getTotal());
+        sale.setCreatedAt(java.time.LocalDateTime.now());
+        sale.setUpdatedAt(java.time.LocalDateTime.now());
 
-            List<SaleItem> items = saleDTO.getItems().stream()
-                    .map(itemDTO -> {
-                        SaleItem item = new SaleItem();
-                        item.setSaleItemId(UUID.randomUUID().toString());
-                        item.setCategoryId(itemDTO.getCategory_id());
-                        item.setProductId(itemDTO.getProduct_id());
-                        item.setQuantity(itemDTO.getQuantity());
-                        item.setSku(itemDTO.getSku());
-                        item.setTitle(itemDTO.getTitle());
-                        item.setSubtitle(itemDTO.getSubtitle());
-                        item.setDescription(itemDTO.getDescription());
-                        item.setUrlBanner(itemDTO.getUrl_banner());
-                        item.setTotalValue(itemDTO.getTotal_value());
+        List<SaleItem> items = saleDTO.getItems().stream()
+                .map(itemDTO -> {
+                    SaleItem item = new SaleItem();
+                    item.setSaleItemId(UUID.randomUUID().toString());
+                    item.setCategoryId(itemDTO.getCategory_id());
+                    item.setProductId(itemDTO.getProduct_id());
+                    item.setQuantity(itemDTO.getQuantity());
+                    item.setSku(itemDTO.getSku());
+                    item.setTitle(itemDTO.getTitle());
+                    item.setSubtitle(itemDTO.getSubtitle());
+                    item.setDescription(itemDTO.getDescription());
+                    item.setUrlBanner(itemDTO.getUrl_banner());
+                    item.setTotalValue(itemDTO.getTotal_value());
+                    item.setSale(sale);
+                    return item;
+                })
+                .collect(Collectors.toList());
 
-                        item.setSale(sale);
-
-                        return item;
-                    })
-                    .collect(Collectors.toList());
-
-            sale.setItems(items);
-            Sale savedSale = saleRepository.save(sale);
-            return saleMapper.toDTO(savedSale);
-        } catch (Exception e) {
-            throw e;
-        }
+        sale.setItems(items);
+        Sale savedSale = saleRepository.save(sale);
+        return saleMapper.toDTO(savedSale);
     }
 
-
     public List<SaleDTO> getSalesByUser(String companyId, String userId) {
-        try {
-            validateRequiredFields(companyId, userId);
-            List<Sale> sales = saleRepository.findSalesByUser(companyId, userId);
-            return sales.stream()
-                    .map(saleMapper::toDTO)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw e;
-        }
+        validateRequiredFields(companyId, userId);
+        List<Sale> sales = saleRepository.findSalesByUser(companyId, userId);
+        return sales.stream()
+                .map(saleMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     public List<SaleDTO> getSalesByCompany(String companyId) {
-        try {
-            validateRequiredFields(companyId);
-            List<Sale> sales = saleRepository.findByCompanyId(companyId);
-            return sales.stream()
-                    .map(saleMapper::toDTO)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw e;
-        }
+        validateRequiredFields(companyId);
+        List<Sale> sales = saleRepository.findByCompanyId(companyId);
+        return sales.stream()
+                .map(saleMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     public Sale getSaleById(String companyId, String saleId) {
-        try {
-            return saleRepository.findSaleById(companyId, saleId)
-                    .orElseThrow(() -> new SaleNotFoundException("Sale not found"));
-        } catch (Exception e) {
-            throw e;
-        }
+        return saleRepository.findSaleById(companyId, saleId)
+                .orElseThrow(() -> new SaleNotFoundException(String.format("Sale %s not found", saleId)));
     }
 
     @Transactional
     public void deleteSale(String companyId, String saleId) {
-        try {
-            Sale sale = getSaleById(companyId, saleId);
-            saleRepository.delete(sale);
-        } catch (Exception e) {
-            throw e;
+        Sale sale = getSaleById(companyId, saleId);
+        if(sale == null) {
+            throw new SaleNotFoundException(String.format("Sale %s not found", saleId));
         }
+        saleRepository.delete(sale);
     }
 
     private void validateRequiredFields(String companyId) {

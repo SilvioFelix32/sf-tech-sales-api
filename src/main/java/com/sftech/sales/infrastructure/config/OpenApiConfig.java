@@ -15,7 +15,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("SF Tech Sales API")
                         .version("1.0.0")
-                        .description("API para gerenciamento de vendas da SF Tech")
+                        .description("API for sales management of SF Tech")
                         .license(new License()
                                 .name("Apache 2.0")
                                 .url("https://www.apache.org/licenses/LICENSE-2.0")));

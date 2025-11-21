@@ -1,9 +1,9 @@
 package com.sftech.sales.infrastructure.http.controller;
 
 import com.sftech.sales.application.dto.SaleDTO;
+import com.sftech.sales.application.port.out.SaleMapperPort;
+import com.sftech.sales.application.service.SaleService;
 import com.sftech.sales.domain.entity.Sale;
-import com.sftech.sales.domain.service.SaleService;
-import com.sftech.sales.infrastructure.persistence.mapper.SaleMapper;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/sales")
 public class SaleController {
     private final SaleService saleService;
-    private final SaleMapper saleMapper;
+    private final SaleMapperPort saleMapper;
 
-    public SaleController(SaleService saleService, SaleMapper saleMapper) {
+    public SaleController(SaleService saleService, SaleMapperPort saleMapper) {
         this.saleService = saleService;
         this.saleMapper = saleMapper;
     }

@@ -1,47 +1,38 @@
-package com.sftech.sales.domain.service;
+package com.sftech.sales.application.service;
 
 import com.sftech.sales.application.dto.SaleDTO;
 import com.sftech.sales.application.dto.SaleItemDTO;
 import com.sftech.sales.domain.entity.Sale;
 import com.sftech.sales.domain.entity.SaleItem;
-import com.sftech.sales.infrastructure.cache.CacheService;
-import com.sftech.sales.infrastructure.exception.BadRequestException;
-import com.sftech.sales.infrastructure.exception.SaleNotFoundException;
-import com.sftech.sales.infrastructure.persistence.mapper.SaleMapper;
-import com.sftech.sales.infrastructure.persistence.repository.SaleRepository;
+import com.sftech.sales.domain.exception.BadRequestException;
+import com.sftech.sales.domain.exception.SaleNotFoundException;
+import com.sftech.sales.application.port.out.SaleMapperPort;
+import com.sftech.sales.domain.port.out.SaleRepositoryPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class SaleService {
     private static final Logger logger = LoggerFactory.getLogger(SaleService.class);
-    private static final String CACHE_KEY_PREFIX = "sales:";
-    private static final String CACHE_KEY_COMPANY = CACHE_KEY_PREFIX + "company:";
-    private static final String CACHE_KEY_USER = CACHE_KEY_PREFIX + "user:";
-    private static final Duration CACHE_TTL = Duration.ofMinutes(30);
 
-    private final SaleRepository saleRepository;
-    private final SaleMapper saleMapper;
-    private final CacheService cacheService;
+    private final SaleRepositoryPort saleRepository;
+    private final SaleMapperPort saleMapper;
 
-    public SaleService(SaleRepository saleRepository, SaleMapper saleMapper, CacheService cacheService) {
+    public SaleService(SaleRepositoryPort saleRepository, SaleMapperPort saleMapper) {
         this.saleRepository = saleRepository;
         this.saleMapper = saleMapper;
-        this.cacheService = cacheService;
     }
 
     @Transactional
     public SaleDTO createSale(String companyId, String userId, SaleDTO saleDTO) {
+        logger.info("Creating sale for companyId: {}, userId: {}", companyId, userId);
         try {
-            logger.info("Creating sale for companyId: {}, userId: {}", companyId, userId);
             validateRequiredFields(companyId, userId);
             validateCreateSaleDTO(saleDTO);
 
@@ -75,111 +66,80 @@ public class SaleService {
             Sale savedSale = saleRepository.save(sale);
             SaleDTO result = saleMapper.toDTO(savedSale);
 
-            String companyCacheKey = CACHE_KEY_COMPANY + companyId;
-            String userCacheKey = CACHE_KEY_USER + companyId + ":" + userId;
-            cacheService.delete(companyCacheKey);
-            cacheService.delete(userCacheKey);
-            logger.info("Cache invalidated for companyId: {} and userId: {}", companyId, userId);
-
             logger.info("Sale created successfully with id: {}", savedSale.getSaleId());
             return result;
+        } catch (BadRequestException e) {
+            throw e;
         } catch (Exception e) {
-            logger.error("Error creating sale for companyId: {}, userId: {}", companyId, userId, e);
+            logger.error("Unexpected error creating sale for companyId: {}, userId: {}", companyId, userId, e);
             throw e;
         }
     }
 
     public List<SaleDTO> getSalesByUser(String companyId, String userId) {
+        logger.info("Getting sales for companyId: {}, userId: {}", companyId, userId);
         try {
-            logger.info("Getting sales for companyId: {}, userId: {}", companyId, userId);
             validateRequiredFields(companyId, userId);
 
-            String cacheKey = CACHE_KEY_USER + companyId + ":" + userId;
-            Optional<Object> cachedValue = cacheService.get(cacheKey);
-            
-            if (cachedValue.isPresent() && cachedValue.get() instanceof List) {
-                @SuppressWarnings("unchecked")
-                List<SaleDTO> cachedSales = (List<SaleDTO>) cachedValue.get();
-                logger.info("Cache hit for sales by user - companyId: {}, userId: {}", companyId, userId);
-                return cachedSales;
-            }
-
-            logger.debug("Cache miss for sales by user - companyId: {}, userId: {}", companyId, userId);
             List<Sale> sales = saleRepository.findSalesByUser(companyId, userId);
             List<SaleDTO> result = sales.stream()
                     .map(saleMapper::toDTO)
                     .collect(Collectors.toList());
 
-            cacheService.set(cacheKey, result, CACHE_TTL);
-            logger.info("Sales cached for companyId: {}, userId: {}, count: {}", companyId, userId, result.size());
             return result;
+        } catch (BadRequestException e) {
+            throw e;
         } catch (Exception e) {
-            logger.error("Error getting sales by user for companyId: {}, userId: {}", companyId, userId, e);
+            logger.error("Unexpected error getting sales by user for companyId: {}, userId: {}", companyId, userId, e);
             throw e;
         }
     }
 
     public List<SaleDTO> getSalesByCompany(String companyId) {
+        logger.info("Getting sales for companyId: {}", companyId);
         try {
-            logger.info("Getting sales for companyId: {}", companyId);
             validateRequiredFields(companyId);
 
-            String cacheKey = CACHE_KEY_COMPANY + companyId;
-            Optional<Object> cachedValue = cacheService.get(cacheKey);
-            
-            if (cachedValue.isPresent() && cachedValue.get() instanceof List) {
-                @SuppressWarnings("unchecked")
-                List<SaleDTO> cachedSales = (List<SaleDTO>) cachedValue.get();
-                logger.info("Cache hit for sales by company - companyId: {}", companyId);
-                return cachedSales;
-            }
-
-            logger.debug("Cache miss for sales by company - companyId: {}", companyId);
             List<Sale> sales = saleRepository.findByCompanyId(companyId);
             List<SaleDTO> result = sales.stream()
                     .map(saleMapper::toDTO)
                     .collect(Collectors.toList());
 
-            cacheService.set(cacheKey, result, CACHE_TTL);
-            logger.info("Sales cached for companyId: {}, count: {}", companyId, result.size());
             return result;
+        } catch (BadRequestException e) {
+            throw e;
         } catch (Exception e) {
-            logger.error("Error getting sales by company for companyId: {}", companyId, e);
+            logger.error("Unexpected error getting sales by company for companyId: {}", companyId, e);
             throw e;
         }
     }
 
     public Sale getSaleById(String companyId, String saleId) {
+        logger.info("Getting sale by id - companyId: {}, saleId: {}", companyId, saleId);
         try {
-            logger.info("Getting sale by id - companyId: {}, saleId: {}", companyId, saleId);
             Sale sale = saleRepository.findSaleById(companyId, saleId)
                     .orElseThrow(() -> new SaleNotFoundException(String.format("Sale %s not found", saleId)));
             logger.info("Sale found - companyId: {}, saleId: {}", companyId, saleId);
             return sale;
+        } catch (SaleNotFoundException e) {
+            throw e;
         } catch (Exception e) {
-            logger.error("Error getting sale by id - companyId: {}, saleId: {}", companyId, saleId, e);
+            logger.error("Unexpected error getting sale by id - companyId: {}, saleId: {}", companyId, saleId, e);
             throw e;
         }
     }
 
     @Transactional
     public void deleteSale(String companyId, String saleId) {
+        logger.info("Deleting sale - companyId: {}, saleId: {}", companyId, saleId);
         try {
-            logger.info("Deleting sale - companyId: {}, saleId: {}", companyId, saleId);
             Sale sale = getSaleById(companyId, saleId);
-            if (sale == null) {
-                throw new SaleNotFoundException(String.format("Sale %s not found", saleId));
-            }
             saleRepository.delete(sale);
-
-            String companyCacheKey = CACHE_KEY_COMPANY + companyId;
-            cacheService.delete(companyCacheKey);
-            cacheService.deletePattern(CACHE_KEY_USER + companyId + ":*");
-            logger.info("Cache invalidated for companyId: {} after deletion", companyId);
-
             logger.info("Sale deleted successfully - companyId: {}, saleId: {}", companyId, saleId);
+        } catch (SaleNotFoundException | BadRequestException e) {
+            throw e;
         } catch (Exception e) {
-            logger.error("Error deleting sale - companyId: {}, saleId: {}", companyId, saleId, e);
+            logger.error("Unexpected error deleting sale - companyId: {}, saleId: {}", companyId, saleId, e);
             throw e;
         }
     }
@@ -213,3 +173,4 @@ public class SaleService {
         }
     }
 }
+

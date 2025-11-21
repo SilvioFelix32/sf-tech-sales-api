@@ -181,21 +181,60 @@ Documentação OpenAPI JSON:
 http://localhost:8080/api-docs
 ```
 
-## 🏗️ Estrutura do Projeto
+## 🏗️ Estrutura do Projeto (Clean Architecture)
+
+O projeto segue os princípios de **Clean Architecture**, garantindo separação de responsabilidades e independência entre camadas:
 
 ```
 src/main/java/com/sftech/sales/
-├── application/          # Camada de Aplicação
-│   └── dto/             # Data Transfer Objects
-├── domain/              # Camada de Domínio
-│   ├── entity/          # Entidades de Negócio
-│   └── service/         # Serviços de Domínio
-└── infrastructure/      # Camada de Infraestrutura
-    ├── config/          # Configurações
-    ├── exception/       # Tratamento de Exceções
-    ├── http/            # Controllers REST
-    └── persistence/     # Repositórios e Mappers
+├── application/                    # Camada de Aplicação (Use Cases)
+│   ├── dto/                       # Data Transfer Objects
+│   ├── service/                   # Casos de Uso da Aplicação
+│   │   └── SaleService.java
+│   └── port/
+│       └── out/                   # Portas de Saída (Interfaces)
+│           └── SaleMapperPort.java
+│
+├── domain/                        # Camada de Domínio (Core Business)
+│   ├── entity/                    # Entidades de Negócio
+│   │   ├── Sale.java
+│   │   └── SaleItem.java
+│   ├── exception/                 # Exceções de Domínio
+│   │   ├── BusinessException.java
+│   │   ├── BadRequestException.java
+│   │   ├── SaleNotFoundException.java
+│   │   └── ...
+│   └── port/
+│       └── out/                   # Portas de Saída (Interfaces)
+│           └── SaleRepositoryPort.java
+│
+└── infrastructure/                # Camada de Infraestrutura
+    ├── config/                    # Configurações
+    │   ├── OpenApiConfig.java
+    │   └── SecurityConfig.java
+    ├── exception/                 # Tratamento de Exceções HTTP
+    │   ├── GlobalExceptionHandler.java
+    │   └── ErrorResponse.java
+    ├── http/                      # Controllers REST
+    │   └── controller/
+    │       └── SaleController.java
+    └── persistence/               # Persistência de Dados
+        ├── adapter/               # Adapters (Implementações das Portas)
+        │   ├── SaleRepositoryAdapter.java
+        │   └── SaleMapperAdapter.java
+        ├── mapper/                # Mappers (MapStruct)
+        │   ├── SaleMapper.java
+        │   └── SaleItemMapper.java
+        └── repository/            # Repositórios JPA
+            └── SaleRepository.java
 ```
+
+### 📐 Princípios da Arquitetura
+
+- **Domain**: Contém as regras de negócio puras, sem dependências externas
+- **Application**: Implementa os casos de uso, orquestra operações entre domínio e infraestrutura
+- **Infrastructure**: Implementa detalhes técnicos (banco de dados, HTTP, frameworks)
+- **Dependências**: Domain ← Application ← Infrastructure (regra de dependência unidirecional)
 
 ## 🚀 Deploy
 
@@ -203,9 +242,9 @@ src/main/java/com/sftech/sales/
 
 1. Conecte seu repositório GitHub ao Render
 2. Configure as variáveis de ambiente:
-   - `DATABASE_URL`
-   - `DATABASE_USERNAME`
-   - `DATABASE_PASSWORD`
+   - `DATABASE_URL`: URL completa do PostgreSQL
+   - `DATABASE_USERNAME`: Usuário do banco
+   - `DATABASE_PASSWORD`: Senha do banco
    - `SPRING_PROFILES_ACTIVE=prod`
 3. Render detectará automaticamente o Dockerfile
 4. Porta: 8080

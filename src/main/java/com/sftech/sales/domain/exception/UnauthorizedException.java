@@ -1,4 +1,4 @@
-package com.sftech.sales.infrastructure.exception;
+package com.sftech.sales.domain.exception;
 
 import org.springframework.http.HttpStatus;
 
@@ -7,3 +7,4 @@ public class UnauthorizedException extends BusinessException {
         super(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", message);
     }
 }
+

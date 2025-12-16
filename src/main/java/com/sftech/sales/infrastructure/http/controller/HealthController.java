@@ -20,3 +20,17 @@ public class HealthController {
     }
 }
 
+@RestController
+class RootController {
+
+    @GetMapping("/")
+    public ResponseEntity<Map<String, Object>> root() {
+        return ResponseEntity.ok(
+                Map.of(
+                        "service", "sf-tech-sales-api",
+                        "status", "running",
+                        "timestamp", Instant.now().toString(),
+                        "health", "/api/keep-alive"));
+    }
+}
+

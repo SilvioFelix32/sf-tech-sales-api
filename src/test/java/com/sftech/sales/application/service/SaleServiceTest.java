@@ -74,6 +74,8 @@ class SaleServiceTest {
     private SaleDTO createSaleDTO() {
         SaleDTO dto = new SaleDTO();
         dto.setTotal(100.0);
+        dto.setPayment_method("credit_card");
+        dto.setDeliver_address("123 Main Street, City, State");
         List<SaleItemDTO> items = new ArrayList<>();
         items.add(saleItemDTO);
         dto.setItems(items);
@@ -98,6 +100,8 @@ class SaleServiceTest {
         s.setCompanyId(companyId);
         s.setUserId(userId);
         s.setTotal(100.0);
+        s.setPaymentMethod("credit_card");
+        s.setDeliverAddress("123 Main Street, City, State");
         s.setCreatedAt(LocalDateTime.now());
         s.setUpdatedAt(LocalDateTime.now());
         s.setItems(List.of(saleItem));
@@ -110,6 +114,8 @@ class SaleServiceTest {
         dto.setCompany_id(companyId);
         dto.setUser_id(userId);
         dto.setTotal(100.0);
+        dto.setPayment_method("credit_card");
+        dto.setDeliver_address("123 Main Street, City, State");
         return dto;
     }
 
@@ -126,6 +132,8 @@ class SaleServiceTest {
         assertEquals(companyId, result.getCompany_id());
         assertEquals(userId, result.getUser_id());
         assertEquals(100.0, result.getTotal());
+        assertEquals("credit_card", result.getPayment_method());
+        assertEquals("123 Main Street, City, State", result.getDeliver_address());
         verify(saleRepository).save(any(Sale.class));
         verify(saleMapper).toDTO(any(Sale.class));
     }
@@ -241,6 +249,8 @@ class SaleServiceTest {
         assertEquals(saleId, result.getSaleId());
         assertEquals(companyId, result.getCompanyId());
         assertEquals(userId, result.getUserId());
+        assertEquals("credit_card", result.getPaymentMethod());
+        assertEquals("123 Main Street, City, State", result.getDeliverAddress());
         verify(saleRepository).findSaleById(companyId, saleId);
     }
 

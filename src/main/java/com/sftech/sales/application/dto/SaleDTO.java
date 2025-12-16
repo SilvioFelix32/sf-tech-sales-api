@@ -10,6 +10,8 @@ public class SaleDTO {
     private String company_id;
     private String user_id;
     private Double total;
+    private String payment_method;
+    private String deliver_address;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
     private List<SaleItemDTO> items;
@@ -44,6 +46,22 @@ public class SaleDTO {
 
     public void setTotal(Double total) {
         this.total = total;
+    }
+
+    public String getPayment_method() {
+        return payment_method;
+    }
+
+    public void setPayment_method(String payment_method) {
+        this.payment_method = payment_method;
+    }
+
+    public String getDeliver_address() {
+        return deliver_address;
+    }
+
+    public void setDeliver_address(String deliver_address) {
+        this.deliver_address = deliver_address;
     }
 
     public LocalDateTime getCreated_at() {

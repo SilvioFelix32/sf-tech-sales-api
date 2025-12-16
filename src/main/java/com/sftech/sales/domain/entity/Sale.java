@@ -27,6 +27,12 @@ public class Sale {
     @Column(name = "total", nullable = false)
     private Double total;
 
+    @Column(name = "payment_method")
+    private String paymentMethod;
+
+    @Column(name = "deliver_address")
+    private String deliverAddress;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -74,6 +80,22 @@ public class Sale {
 
     public void setTotal(Double total) {
         this.total = total;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public String getDeliverAddress() {
+        return deliverAddress;
+    }
+
+    public void setDeliverAddress(String deliverAddress) {
+        this.deliverAddress = deliverAddress;
     }
 
     public LocalDateTime getCreatedAt() {

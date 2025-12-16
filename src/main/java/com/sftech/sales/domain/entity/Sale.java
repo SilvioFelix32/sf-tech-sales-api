@@ -1,5 +1,6 @@
 package com.sftech.sales.domain.entity;
 
+import com.sftech.sales.domain.enums.PaymentMethod;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,8 +28,9 @@ public class Sale {
     @Column(name = "total", nullable = false)
     private Double total;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "payment_method")
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
 
     @Column(name = "deliver_address")
     private String deliverAddress;
@@ -82,11 +84,11 @@ public class Sale {
         this.total = total;
     }
 
-    public String getPaymentMethod() {
+    public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 

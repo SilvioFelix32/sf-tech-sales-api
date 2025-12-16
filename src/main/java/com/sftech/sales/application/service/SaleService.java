@@ -4,6 +4,7 @@ import com.sftech.sales.application.dto.SaleDTO;
 import com.sftech.sales.application.dto.SaleItemDTO;
 import com.sftech.sales.domain.entity.Sale;
 import com.sftech.sales.domain.entity.SaleItem;
+import com.sftech.sales.domain.enums.PaymentMethod;
 import com.sftech.sales.domain.exception.BadRequestException;
 import com.sftech.sales.domain.exception.SaleNotFoundException;
 import com.sftech.sales.application.port.out.SaleMapperPort;
@@ -41,6 +42,15 @@ public class SaleService {
             sale.setCompanyId(companyId);
             sale.setUserId(userId);
             sale.setTotal(saleDTO.getTotal());
+            if (saleDTO.getPayment_method() != null && !saleDTO.getPayment_method().isEmpty()) {
+                try {
+                    sale.setPaymentMethod(PaymentMethod.valueOf(saleDTO.getPayment_method().toUpperCase()));
+                } catch (IllegalArgumentException e) {
+                    // Se o valor não for válido, deixa null
+                    sale.setPaymentMethod(null);
+                }
+            }
+            sale.setDeliverAddress(saleDTO.getDeliver_address());
             sale.setCreatedAt(java.time.LocalDateTime.now());
             sale.setUpdatedAt(java.time.LocalDateTime.now());
 

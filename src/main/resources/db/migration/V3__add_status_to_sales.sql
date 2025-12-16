@@ -1,0 +1,3 @@
+ALTER TABLE sales
+ADD COLUMN status VARCHAR(255);
+

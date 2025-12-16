@@ -1,5 +1,7 @@
 package com.sftech.sales.application.dto;
 
+import com.sftech.sales.domain.enums.PaymentMethod;
+import com.sftech.sales.domain.enums.SaleStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
@@ -10,7 +12,8 @@ public class SaleDTO {
     private String company_id;
     private String user_id;
     private Double total;
-    private String payment_method;
+    private PaymentMethod payment_method;
+    private SaleStatus status;
     private String deliver_address;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
@@ -48,12 +51,20 @@ public class SaleDTO {
         this.total = total;
     }
 
-    public String getPayment_method() {
+    public PaymentMethod getPayment_method() {
         return payment_method;
     }
 
-    public void setPayment_method(String payment_method) {
+    public void setPayment_method(PaymentMethod payment_method) {
         this.payment_method = payment_method;
+    }
+
+    public SaleStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SaleStatus status) {
+        this.status = status;
     }
 
     public String getDeliver_address() {

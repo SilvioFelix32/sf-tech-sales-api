@@ -1,6 +1,7 @@
 package com.sftech.sales.domain.entity;
 
 import com.sftech.sales.domain.enums.PaymentMethod;
+import com.sftech.sales.domain.enums.SaleStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,6 +32,10 @@ public class Sale {
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method")
     private PaymentMethod paymentMethod;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private SaleStatus status;
 
     @Column(name = "deliver_address")
     private String deliverAddress;
@@ -90,6 +95,14 @@ public class Sale {
 
     public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public SaleStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SaleStatus status) {
+        this.status = status;
     }
 
     public String getDeliverAddress() {

@@ -5,6 +5,7 @@ import com.sftech.sales.application.dto.SaleItemDTO;
 import com.sftech.sales.domain.entity.Sale;
 import com.sftech.sales.domain.entity.SaleItem;
 import com.sftech.sales.domain.enums.PaymentMethod;
+import com.sftech.sales.domain.enums.SaleStatus;
 import com.sftech.sales.domain.exception.BadRequestException;
 import com.sftech.sales.domain.exception.SaleNotFoundException;
 import com.sftech.sales.application.port.out.SaleMapperPort;
@@ -42,14 +43,8 @@ public class SaleService {
             sale.setCompanyId(companyId);
             sale.setUserId(userId);
             sale.setTotal(saleDTO.getTotal());
-            if (saleDTO.getPayment_method() != null && !saleDTO.getPayment_method().isEmpty()) {
-                try {
-                    sale.setPaymentMethod(PaymentMethod.valueOf(saleDTO.getPayment_method().toUpperCase()));
-                } catch (IllegalArgumentException e) {
-                    // Se o valor não for válido, deixa null
-                    sale.setPaymentMethod(null);
-                }
-            }
+            sale.setPaymentMethod(saleDTO.getPayment_method());
+            sale.setStatus(saleDTO.getStatus() != null ? saleDTO.getStatus() : SaleStatus.UNDER_REVIEW);
             sale.setDeliverAddress(saleDTO.getDeliver_address());
             sale.setCreatedAt(java.time.LocalDateTime.now());
             sale.setUpdatedAt(java.time.LocalDateTime.now());
@@ -150,6 +145,34 @@ public class SaleService {
             throw e;
         } catch (Exception e) {
             logger.error("Unexpected error deleting sale - companyId: {}, saleId: {}", companyId, saleId, e);
+            throw e;
+        }
+    }
+
+    @Transactional
+    public SaleDTO updateSaleStatus(String companyId, String saleId, SaleStatus status) {
+        logger.info("Updating sale status - companyId: {}, saleId: {}, newStatus: {}", companyId, saleId, status);
+        try {
+            validateRequiredFields(companyId);
+            if (status == null) {
+                throw new BadRequestException("Sale status is required");
+            }
+
+            Sale sale = getSaleById(companyId, saleId);
+            sale.setStatus(status);
+            sale.setUpdatedAt(java.time.LocalDateTime.now());
+            
+            Sale updatedSale = saleRepository.save(sale);
+            SaleDTO result = saleMapper.toDTO(updatedSale);
+
+            logger.info("Sale status updated successfully - companyId: {}, saleId: {}, newStatus: {}", 
+                    companyId, saleId, status);
+            return result;
+        } catch (SaleNotFoundException | BadRequestException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Unexpected error updating sale status - companyId: {}, saleId: {}, status: {}", 
+                    companyId, saleId, status, e);
             throw e;
         }
     }

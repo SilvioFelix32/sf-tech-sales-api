@@ -5,6 +5,7 @@ import com.sftech.sales.application.dto.SaleItemDTO;
 import com.sftech.sales.domain.entity.Sale;
 import com.sftech.sales.domain.entity.SaleItem;
 import com.sftech.sales.domain.enums.PaymentMethod;
+import com.sftech.sales.domain.enums.SaleStatus;
 import com.sftech.sales.domain.exception.BadRequestException;
 import com.sftech.sales.domain.exception.SaleNotFoundException;
 import com.sftech.sales.application.port.out.SaleMapperPort;
@@ -75,7 +76,8 @@ class SaleServiceTest {
     private SaleDTO createSaleDTO() {
         SaleDTO dto = new SaleDTO();
         dto.setTotal(100.0);
-        dto.setPayment_method("CREDIT_CARD");
+        dto.setPayment_method(PaymentMethod.CREDIT_CARD);
+        dto.setStatus(SaleStatus.UNDER_REVIEW);
         dto.setDeliver_address("123 Main Street, City, State");
         List<SaleItemDTO> items = new ArrayList<>();
         items.add(saleItemDTO);
@@ -102,6 +104,7 @@ class SaleServiceTest {
         s.setUserId(userId);
         s.setTotal(100.0);
         s.setPaymentMethod(PaymentMethod.CREDIT_CARD);
+        s.setStatus(SaleStatus.UNDER_REVIEW);
         s.setDeliverAddress("123 Main Street, City, State");
         s.setCreatedAt(LocalDateTime.now());
         s.setUpdatedAt(LocalDateTime.now());
@@ -115,7 +118,8 @@ class SaleServiceTest {
         dto.setCompany_id(companyId);
         dto.setUser_id(userId);
         dto.setTotal(100.0);
-        dto.setPayment_method("CREDIT_CARD");
+        dto.setPayment_method(PaymentMethod.CREDIT_CARD);
+        dto.setStatus(SaleStatus.UNDER_REVIEW);
         dto.setDeliver_address("123 Main Street, City, State");
         return dto;
     }
@@ -133,7 +137,8 @@ class SaleServiceTest {
         assertEquals(companyId, result.getCompany_id());
         assertEquals(userId, result.getUser_id());
         assertEquals(100.0, result.getTotal());
-        assertEquals("CREDIT_CARD", result.getPayment_method());
+        assertEquals(PaymentMethod.CREDIT_CARD, result.getPayment_method());
+        assertEquals(SaleStatus.UNDER_REVIEW, result.getStatus());
         assertEquals("123 Main Street, City, State", result.getDeliver_address());
         verify(saleRepository).save(any(Sale.class));
         verify(saleMapper).toDTO(any(Sale.class));
@@ -251,6 +256,7 @@ class SaleServiceTest {
         assertEquals(companyId, result.getCompanyId());
         assertEquals(userId, result.getUserId());
         assertEquals(PaymentMethod.CREDIT_CARD, result.getPaymentMethod());
+        assertEquals(SaleStatus.UNDER_REVIEW, result.getStatus());
         assertEquals("123 Main Street, City, State", result.getDeliverAddress());
         verify(saleRepository).findSaleById(companyId, saleId);
     }
@@ -347,96 +353,78 @@ class SaleServiceTest {
     @Test
     @DisplayName("Should create sale with DEBIT_CARD payment method")
     void shouldCreateSaleWithDebitCardPaymentMethod() {
-        saleDTO.setPayment_method("DEBIT_CARD");
+        saleDTO.setPayment_method(PaymentMethod.DEBIT_CARD);
         Sale saleWithDebitCard = createSale();
         saleWithDebitCard.setPaymentMethod(PaymentMethod.DEBIT_CARD);
         SaleDTO expectedDTO = createExpectedDTO();
-        expectedDTO.setPayment_method("DEBIT_CARD");
+        expectedDTO.setPayment_method(PaymentMethod.DEBIT_CARD);
         
         when(saleRepository.save(any(Sale.class))).thenReturn(saleWithDebitCard);
         when(saleMapper.toDTO(any(Sale.class))).thenReturn(expectedDTO);
 
         SaleDTO result = saleService.createSale(companyId, userId, saleDTO);
 
-        assertEquals("DEBIT_CARD", result.getPayment_method());
+        assertEquals(PaymentMethod.DEBIT_CARD, result.getPayment_method());
         verify(saleRepository).save(argThat(s -> s.getPaymentMethod() == PaymentMethod.DEBIT_CARD));
     }
 
     @Test
     @DisplayName("Should create sale with PIX payment method")
     void shouldCreateSaleWithPixPaymentMethod() {
-        saleDTO.setPayment_method("PIX");
+        saleDTO.setPayment_method(PaymentMethod.PIX);
         Sale saleWithPix = createSale();
         saleWithPix.setPaymentMethod(PaymentMethod.PIX);
         SaleDTO expectedDTO = createExpectedDTO();
-        expectedDTO.setPayment_method("PIX");
+        expectedDTO.setPayment_method(PaymentMethod.PIX);
         
         when(saleRepository.save(any(Sale.class))).thenReturn(saleWithPix);
         when(saleMapper.toDTO(any(Sale.class))).thenReturn(expectedDTO);
 
         SaleDTO result = saleService.createSale(companyId, userId, saleDTO);
 
-        assertEquals("PIX", result.getPayment_method());
+        assertEquals(PaymentMethod.PIX, result.getPayment_method());
         verify(saleRepository).save(argThat(s -> s.getPaymentMethod() == PaymentMethod.PIX));
     }
 
     @Test
     @DisplayName("Should create sale with BANK_SLIP payment method")
     void shouldCreateSaleWithBankSlipPaymentMethod() {
-        saleDTO.setPayment_method("BANK_SLIP");
+        saleDTO.setPayment_method(PaymentMethod.BANK_SLIP);
         Sale saleWithBankSlip = createSale();
         saleWithBankSlip.setPaymentMethod(PaymentMethod.BANK_SLIP);
         SaleDTO expectedDTO = createExpectedDTO();
-        expectedDTO.setPayment_method("BANK_SLIP");
+        expectedDTO.setPayment_method(PaymentMethod.BANK_SLIP);
         
         when(saleRepository.save(any(Sale.class))).thenReturn(saleWithBankSlip);
         when(saleMapper.toDTO(any(Sale.class))).thenReturn(expectedDTO);
 
         SaleDTO result = saleService.createSale(companyId, userId, saleDTO);
 
-        assertEquals("BANK_SLIP", result.getPayment_method());
+        assertEquals(PaymentMethod.BANK_SLIP, result.getPayment_method());
         verify(saleRepository).save(argThat(s -> s.getPaymentMethod() == PaymentMethod.BANK_SLIP));
     }
 
     @Test
-    @DisplayName("Should handle case-insensitive payment method conversion")
-    void shouldHandleCaseInsensitivePaymentMethodConversion() {
-        saleDTO.setPayment_method("credit_card");
-        Sale saleWithLowercase = createSale();
-        saleWithLowercase.setPaymentMethod(PaymentMethod.CREDIT_CARD);
+    @DisplayName("Should create sale with CREDIT_CARD payment method")
+    void shouldCreateSaleWithCreditCardPaymentMethod() {
+        saleDTO.setPayment_method(PaymentMethod.CREDIT_CARD);
+        Sale saleWithCreditCard = createSale();
+        saleWithCreditCard.setPaymentMethod(PaymentMethod.CREDIT_CARD);
         SaleDTO expectedDTO = createExpectedDTO();
-        expectedDTO.setPayment_method("CREDIT_CARD");
+        expectedDTO.setPayment_method(PaymentMethod.CREDIT_CARD);
         
-        when(saleRepository.save(any(Sale.class))).thenReturn(saleWithLowercase);
+        when(saleRepository.save(any(Sale.class))).thenReturn(saleWithCreditCard);
         when(saleMapper.toDTO(any(Sale.class))).thenReturn(expectedDTO);
 
         SaleDTO result = saleService.createSale(companyId, userId, saleDTO);
 
-        assertEquals("CREDIT_CARD", result.getPayment_method());
+        assertEquals(PaymentMethod.CREDIT_CARD, result.getPayment_method());
         verify(saleRepository).save(argThat(s -> s.getPaymentMethod() == PaymentMethod.CREDIT_CARD));
     }
 
     @Test
-    @DisplayName("Should handle invalid payment method by setting it to null")
-    void shouldHandleInvalidPaymentMethodBySettingItToNull() {
-        saleDTO.setPayment_method("INVALID_METHOD");
-        Sale saleWithNullPayment = createSale();
-        saleWithNullPayment.setPaymentMethod(null);
-        SaleDTO expectedDTO = createExpectedDTO();
-        expectedDTO.setPayment_method(null);
-        
-        when(saleRepository.save(any(Sale.class))).thenReturn(saleWithNullPayment);
-        when(saleMapper.toDTO(any(Sale.class))).thenReturn(expectedDTO);
-
-        SaleDTO result = saleService.createSale(companyId, userId, saleDTO);
-
-        assertNull(result.getPayment_method());
-        verify(saleRepository).save(argThat(s -> s.getPaymentMethod() == null));
-    }
-
-    @Test
     @DisplayName("Should handle null payment method")
-    void shouldHandleNullPaymentMethod() {
+    void shouldHandleNullPaymentMethodInDTO() {
         saleDTO.setPayment_method(null);
         Sale saleWithNullPayment = createSale();
         saleWithNullPayment.setPaymentMethod(null);
@@ -450,6 +438,42 @@ class SaleServiceTest {
 
         assertNull(result.getPayment_method());
         verify(saleRepository).save(argThat(s -> s.getPaymentMethod() == null));
+    }
+
+    @Test
+    @DisplayName("Should create sale with default status when status is null")
+    void shouldCreateSaleWithDefaultStatusWhenStatusIsNull() {
+        saleDTO.setStatus(null);
+        Sale saleWithDefaultStatus = createSale();
+        saleWithDefaultStatus.setStatus(SaleStatus.UNDER_REVIEW);
+        SaleDTO expectedDTO = createExpectedDTO();
+        expectedDTO.setStatus(SaleStatus.UNDER_REVIEW);
+        
+        when(saleRepository.save(any(Sale.class))).thenReturn(saleWithDefaultStatus);
+        when(saleMapper.toDTO(any(Sale.class))).thenReturn(expectedDTO);
+
+        SaleDTO result = saleService.createSale(companyId, userId, saleDTO);
+
+        assertEquals(SaleStatus.UNDER_REVIEW, result.getStatus());
+        verify(saleRepository).save(argThat(s -> s.getStatus() == SaleStatus.UNDER_REVIEW));
+    }
+
+    @Test
+    @DisplayName("Should create sale with different statuses")
+    void shouldCreateSaleWithDifferentStatuses() {
+        saleDTO.setStatus(SaleStatus.APPROVED);
+        Sale saleWithApprovedStatus = createSale();
+        saleWithApprovedStatus.setStatus(SaleStatus.APPROVED);
+        SaleDTO expectedDTO = createExpectedDTO();
+        expectedDTO.setStatus(SaleStatus.APPROVED);
+        
+        when(saleRepository.save(any(Sale.class))).thenReturn(saleWithApprovedStatus);
+        when(saleMapper.toDTO(any(Sale.class))).thenReturn(expectedDTO);
+
+        SaleDTO result = saleService.createSale(companyId, userId, saleDTO);
+
+        assertEquals(SaleStatus.APPROVED, result.getStatus());
+        verify(saleRepository).save(argThat(s -> s.getStatus() == SaleStatus.APPROVED));
     }
 }
 

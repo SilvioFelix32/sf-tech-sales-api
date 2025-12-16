@@ -4,7 +4,9 @@ import com.sftech.sales.application.dto.SaleDTO;
 import com.sftech.sales.application.port.out.SaleMapperPort;
 import com.sftech.sales.application.service.SaleService;
 import com.sftech.sales.domain.entity.Sale;
+import com.sftech.sales.domain.enums.SaleStatus;
 import java.util.List;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,5 +55,24 @@ public class SaleController {
             @PathVariable String saleId) {
         saleService.deleteSale(companyId, saleId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/update/{saleId}")
+    public ResponseEntity<SaleDTO> updateSaleStatus(
+            @RequestHeader("company_id") String companyId,
+            @PathVariable String saleId,
+            @RequestBody Map<String, String> request) {
+        String statusStr = request.get("status");
+        if (statusStr == null || statusStr.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        try {
+            SaleStatus status = SaleStatus.valueOf(statusStr.toUpperCase());
+            SaleDTO updatedSale = saleService.updateSaleStatus(companyId, saleId, status);
+            return ResponseEntity.ok(updatedSale);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

@@ -57,7 +57,7 @@ public class SaleController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/update/{saleId}")
+    @PatchMapping({"/{saleId}/update", "/update/{saleId}"})
     public ResponseEntity<SaleDTO> updateSaleStatus(
             @RequestHeader("company_id") String companyId,
             @PathVariable String saleId,

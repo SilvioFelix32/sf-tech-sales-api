@@ -4,7 +4,6 @@ import com.sftech.sales.application.dto.SaleDTO;
 import com.sftech.sales.application.dto.SaleItemDTO;
 import com.sftech.sales.domain.entity.Sale;
 import com.sftech.sales.domain.entity.SaleItem;
-import com.sftech.sales.domain.enums.PaymentMethod;
 import com.sftech.sales.domain.enums.SaleStatus;
 import com.sftech.sales.domain.exception.BadRequestException;
 import com.sftech.sales.domain.exception.SaleNotFoundException;
